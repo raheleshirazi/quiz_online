@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#8b5cf6">
+    <title>Quiz Pro | آزمون آنلاین حرفه‌ای</title>
+
+    <!-- Favicon از assets/img -->
+    <link rel="icon" type="image/png" href="assets/img/faveicon.png">
+    <link rel="apple-touch-icon" href="assets/img/faveicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body data-view="auth">
+
+    <!-- ============================================================
+       صفحه احراز هویت
+       ============================================================ -->
+    <section id="authScreen" class="auth-screen">
+
+        <div id="authWelcome" class="auth-view active">
+            <div class="auth-bg-blobs">
+                <div class="blob b1"></div>
+                <div class="blob b2"></div>
+                <div class="blob b3"></div>
+            </div>
+
+            <div class="auth-card glass">
+                <div class="auth-logo">
+                    <div class="logo-circle"><i class='bx bx-brain'></i></div>
+                </div>
+                <h1 class="auth-title">به <span class="gradient-text">Quiz Pro</span> خوش آمدی</h1>
+                <p class="auth-sub">برای استفاده از تمام امکانات، ابتدا ثبت‌نام کن ✨</p>
+
+                <ul class="auth-features">
+                    <li><i class='bx bx-check-circle'></i> آزمون‌های متنوع در حوزه‌های مختلف</li>
+                    <li><i class='bx bx-check-circle'></i> دستاورد، امتیاز و استریک روزانه</li>
+                    <li><i class='bx bx-check-circle'></i> آمار و نمودارهای پیشرفته</li>
+                </ul>
+
+                <button id="btnGoAuth" class="btn primary lg full">
+                    ثبت‌نام / ورود
+                    <i class='bx bx-left-arrow-alt'></i>
+                </button>
+
+                <p class="auth-foot">
+                    <i class='bx bx-shield-quarter'></i>
+                    اطلاعات شما فقط در مرورگر خودتان ذخیره می‌شود
+                </p>
+            </div>
+        </div>
+
+        <div id="authForm" class="auth-view">
+            <div class="auth-bg-blobs">
+                <div class="blob b1"></div>
+                <div class="blob b2"></div>
+                <div class="blob b3"></div>
+            </div>
+
+            <div class="auth-card glass">
+                <button id="btnBackWelcome" class="icon-btn back-btn" title="بازگشت">
+                    <i class='bx bx-right-arrow-alt'></i>
+                </button>
+
+                <div class="auth-logo small">
+                    <div class="logo-circle small"><i class='bx bx-brain'></i></div>
+                </div>
+
+                <div class="auth-tabs" data-active="register">
+                    <button class="tab-btn active" data-tab="register">
+                        <i class='bx bx-user-plus'></i> ثبت‌نام
+                    </button>
+                    <button class="tab-btn" data-tab="login">
+                        <i class='bx bx-log-in'></i> ورود
+                    </button>
+                    <div class="tab-indicator"></div>
+                </div>
+
+                <form id="registerForm" class="auth-form active" autocomplete="off">
+                    <div class="field">
+                        <label>نام کاربری</label>
+                        <div class="input-icon">
+                            <i class='bx bx-user'></i>
+                            <input type="text" id="regUsername" placeholder="حداقل ۳ کاراکتر" required minlength="3">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>ایمیل</label>
+                        <div class="input-icon">
+                            <i class='bx bx-envelope'></i>
+                            <input type="email" id="regEmail" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>رمز عبور</label>
+                        <div class="input-icon">
+                            <i class='bx bx-lock'></i>
+                            <input type="password" id="regPassword" placeholder="حداقل ۶ کاراکتر" required
+                                minlength="6">
+                            <button type="button" class="toggle-pw"><i class='bx bx-show'></i></button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>تکرار رمز عبور</label>
+                        <div class="input-icon">
+                            <i class='bx bx-lock-alt'></i>
+                            <input type="password" id="regConfirm" placeholder="رمز را دوباره وارد کن" required>
+                            <button type="button" class="toggle-pw"><i class='bx bx-show'></i></button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>کد امنیتی</label>
+                        <div class="captcha-row">
+                            <canvas id="captchaReg" class="captcha-canvas" width="140" height="52"></canvas>
+                            <button type="button" class="refresh-cap" data-for="reg" title="کد جدید">
+                                <i class='bx bx-refresh'></i>
+                            </button>
+                            <input type="text" id="regCaptcha" placeholder="کد" required maxlength="6">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn primary lg full">
+                        <i class='bx bx-user-plus'></i> ایجاد حساب کاربری
+                    </button>
+                </form>
+
+                <form id="loginForm" class="auth-form" autocomplete="off">
+                    <div class="field">
+                        <label>نام کاربری</label>
+                        <div class="input-icon">
+                            <i class='bx bx-user'></i>
+                            <input type="text" id="logUsername" placeholder="نام کاربری" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>رمز عبور</label>
+                        <div class="input-icon">
+                            <i class='bx bx-lock'></i>
+                            <input type="password" id="logPassword" placeholder="رمز عبور" required>
+                            <button type="button" class="toggle-pw"><i class='bx bx-show'></i></button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>کد امنیتی</label>
+                        <div class="captcha-row">
+                            <canvas id="captchaLog" class="captcha-canvas" width="140" height="52"></canvas>
+                            <button type="button" class="refresh-cap" data-for="log" title="کد جدید">
+                                <i class='bx bx-refresh'></i>
+                            </button>
+                            <input type="text" id="logCaptcha" placeholder="کد" required maxlength="6">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn primary lg full">
+                        <i class='bx bx-log-in'></i> ورود به حساب
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+       اپلیکیشن اصلی
+       ============================================================ -->
+    <div id="app" class="app">
+
+        <header class="topbar glass">
+            <div class="brand" id="brandHome">
+                <div class="logo-circle tiny"><i class='bx bx-brain'></i></div>
+                <span class="brand-name">Quiz<span class="gradient-text">Pro</span></span>
+            </div>
+            <div class="topbar-actions">
+                <button id="btnStats" class="icon-btn" title="آمار"><i class='bx bx-bar-chart-alt-2'></i></button>
+                <button id="btnShortcuts" class="icon-btn" title="میانبرهای کیبورد"><i
+                        class='bx bx-command'></i></button>
+                <button id="btnTheme" class="icon-btn" title="تم"><i class='bx bx-moon'></i></button>
+                <button id="btnProfile" class="avatar-btn" title="پروفایل">
+                    <span id="profileAvatar">🧑</span>
+                </button>
+                <button id="btnAdmin" class="icon-btn admin-only" title="پنل مدیریت" style="display:none;">
+                    <i class='bx bx-cog'></i>
+                </button>
+            </div>
+        </header>
+
+        <main>
+
+            <section id="screen-home" class="screen active">
+
+                <div class="hero-modern card">
+                    <div class="hero-bg">
+                        <img src="assets/img/programmer.png" alt="">
+                        <div class="hero-overlay"></div>
+                    </div>
+                    <div class="hero-content">
+                        <div class="hero-info">
+                            <div class="hero-avatar" id="heroAvatar">🧑</div>
+                            <div>
+                                <h1 id="heroGreeting">سلام! 👋</h1>
+                                <p class="hero-sub" id="heroSub">آماده‌ای برای یک آزمون جدید؟</p>
+                                <div class="hero-badges">
+                                    <span class="h-badge" id="heroAdminBadge" style="display:none;">
+                                        <i class='bx bx-crown'></i> مدیر
+                                    </span>
+                                    <span class="h-badge"><i class='bx bx-check-shield'></i> <span
+                                            id="heroQuizzesInline">۰</span> آزمون</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hero-stats-row">
+                            <div class="h-stat">
+                                <i class='bx bxs-flame' style="color:#f59e0b"></i>
+                                <div>
+                                    <span class="h-val" id="heroStreak">۰</span>
+                                    <span class="h-lbl">استریک</span>
+                                </div>
+                            </div>
+                            <div class="h-stat">
+                                <i class='bx bx-target-lock' style="color:#8b5cf6"></i>
+                                <div>
+                                    <span class="h-val" id="heroQuizzes">۰</span>
+                                    <span class="h-lbl">آزمون</span>
+                                </div>
+                            </div>
+                            <div class="h-stat">
+                                <i class='bx bx-trending-up' style="color:#10b981"></i>
+                                <div>
+                                    <span class="h-val" id="heroAvg">۰٪</span>
+                                    <span class="h-lbl">میانگین</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="section-title"><i class='bx bx-game'></i> حالت بازی</h3>
+                <div class="mode-row">
+                    <button class="mode-btn active" data-mode="timed">
+                        <span class="mode-icon"><i class='bx bx-time-five'></i></span>
+                        <div>
+                            <div class="mode-title">زمان‌دار</div>
+                            <div class="mode-sub">با تایمر و چالش</div>
+                        </div>
+                    </button>
+                    <button class="mode-btn" data-mode="practice">
+                        <span class="mode-icon"><i class='bx bx-brain'></i></span>
+                        <div>
+                            <div class="mode-title">تمرینی</div>
+                            <div class="mode-sub">بدون فشار زمان</div>
+                        </div>
+                    </button>
+                </div>
+
+                <h3 class="section-title"><i class='bx bx-signal-4'></i> سطح سختی</h3>
+                <div class="difficulty-row">
+                    <button class="diff-btn active" data-diff="all"><span class="diff-dot all"></span> همه</button>
+                    <button class="diff-btn" data-diff="easy"><span class="diff-dot easy"></span> آسان</button>
+                    <button class="diff-btn" data-diff="medium"><span class="diff-dot medium"></span> متوسط</button>
+                    <button class="diff-btn" data-diff="hard"><span class="diff-dot hard"></span> سخت</button>
+                </div>
+
+                <h3 class="section-title"><i class='bx bx-category-alt'></i> دسته‌بندی آزمون</h3>
+                <div id="categoryList" class="cat-grid"></div>
+
+            </section>
+
+            <section id="screen-quiz" class="screen">
+                <div class="quiz-head">
+                    <span class="pill" id="quizCat">—</span>
+                    <span class="pill timer" id="quizTimer">۰۰:۰۰</span>
+                </div>
+
+                <div class="progress">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="q-meta">
+                    <span class="muted" id="qCounter">سوال ۱ از ۱</span>
+                    <span class="pill small" id="qDifficulty">آسان</span>
+                </div>
+
+                <div class="card">
+                    <h2 id="questionText"></h2>
+                    <div id="optionsList" class="options"></div>
+                </div>
+
+                <div class="nav-row">
+                    <button id="btnPrev" class="btn ghost"><i class='bx bx-right-arrow-alt'></i> قبلی</button>
+                    <button id="btnSkip" class="btn ghost"><i class='bx bx-skip-next'></i> رد کردن</button>
+                    <button id="btnNext" class="btn primary">بعدی <i class='bx bx-left-arrow-alt'></i></button>
+                </div>
+            </section>
+
+            <section id="screen-result" class="screen">
+                <canvas id="confetti" class="confetti-canvas"></canvas>
+
+                <div class="card result-card">
+                    <div class="score-ring" id="scoreRing" style="--p:0">
+                        <div class="score-inner">
+                            <span id="scorePercent">۰٪</span>
+                            <small>درصد</small>
+                        </div>
+                    </div>
+
+                    <h2 id="resultTitle">نتیجه آزمون</h2>
+                    <p class="muted" id="resultSub"></p>
+
+                    <div id="newAchievements" class="new-ach"></div>
+
+                    <div class="result-stats">
+                        <div class="stat">
+                            <span class="stat-val green" id="statCorrect">۰</span>
+                            <span class="stat-lbl">درست</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-val red" id="statWrong">۰</span>
+                            <span class="stat-lbl">غلط</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-val" id="statTime">۰:۰۰</span>
+                            <span class="stat-lbl">زمان</span>
+                        </div>
+                    </div>
+
+                    <div class="nav-row center">
+                        <button id="btnShare" class="btn ghost"><i class='bx bx-share-alt'></i> اشتراک</button>
+                        <button id="btnReview" class="btn ghost"><i class='bx bx-show'></i> مرور</button>
+                        <button id="btnRetry" class="btn primary"><i class='bx bx-refresh'></i> تلاش مجدد</button>
+                        <button id="btnHome" class="btn ghost"><i class='bx bx-home'></i> خانه</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="screen-review" class="screen">
+                <div class="section-head">
+                    <h2><i class='bx bx-show'></i> مرور پاسخ‌ها</h2>
+                    <button id="btnReviewBack" class="btn ghost">بازگشت</button>
+                </div>
+
+                <div class="filter-row">
+                    <button class="filter-btn active" data-filter="all">همه</button>
+                    <button class="filter-btn" data-filter="correct">✅ درست</button>
+                    <button class="filter-btn" data-filter="wrong">❌ غلط</button>
+                    <button class="filter-btn" data-filter="skipped">⚠️ بی‌پاسخ</button>
+                </div>
+
+                <div id="reviewList"></div>
+            </section>
+
+            <section id="screen-stats" class="screen">
+                <div class="section-head">
+                    <h2><i class='bx bx-bar-chart-alt-2'></i> آمار من</h2>
+                    <button id="btnStatsBack" class="btn ghost">بازگشت</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <span class="stat-icon"><i class='bx bx-target-lock'></i></span>
+                        <span class="stat-big" id="sTotalQuizzes">۰</span>
+                        <span class="stat-lbl">آزمون</span>
+                    </div>
+                    <div class="card stat-card">
+                        <span class="stat-icon"><i class='bx bx-check-circle'></i></span>
+                        <span class="stat-big" id="sTotalCorrect">۰</span>
+                        <span class="stat-lbl">درست</span>
+                    </div>
+                    <div class="card stat-card">
+                        <span class="stat-icon"><i class='bx bxs-flame'></i></span>
+                        <span class="stat-big" id="sStreak">۰</span>
+                        <span class="stat-lbl">استریک</span>
+                    </div>
+                    <div class="card stat-card">
+                        <span class="stat-icon"><i class='bx bx-time'></i></span>
+                        <span class="stat-big" id="sTotalTime">۰</span>
+                        <span class="stat-lbl">دقیقه</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrap">
+                    <h3><i class='bx bx-line-chart'></i> روند موفقیت</h3>
+                    <canvas id="chartLine"></canvas>
+                    <div id="lineEmpty" class="chart-empty" style="display:none;">هنوز داده‌ای نداری.</div>
+                </div>
+
+                <div class="chart-wrap">
+                    <h3><i class='bx bx-bar-chart'></i> عملکرد هر دسته</h3>
+                    <canvas id="chartBars"></canvas>
+                    <div id="barsEmpty" class="chart-empty" style="display:none;">هنوز داده‌ای نداری.</div>
+                </div>
+
+                <div class="chart-wrap">
+                    <h3><i class='bx bx-pie-chart-alt-2'></i> توزیع سختی</h3>
+                    <canvas id="chartPie"></canvas>
+                    <div id="pieEmpty" class="chart-empty" style="display:none;">هنوز داده‌ای نداری.</div>
+                </div>
+
+                <div class="chart-wrap">
+                    <h3><i class='bx bx-trophy'></i> دستاوردها</h3>
+                    <div id="achievementGrid" class="ach-grid"></div>
+                </div>
+
+                <div class="chart-wrap">
+                    <div class="section-head" style="margin-bottom:12px;">
+                        <h3 style="margin:0;"><i class='bx bx-history'></i> تاریخچه آزمون‌ها</h3>
+                        <button id="btnClearHistory" class="btn danger small">پاک‌سازی</button>
+                    </div>
+                    <div id="historyList"></div>
+                </div>
+            </section>
+
+            <!-- ==================== پنل ادمین ==================== -->
+            <section id="screen-admin" class="screen">
+                <div class="section-head">
+                    <h2><i class='bx bx-cog'></i> پنل مدیریت</h2>
+                    <button id="btnAdminBack" class="btn ghost">بازگشت</button>
+                </div>
+
+                <div class="admin-notice">
+                    <i class='bx bx-crown'></i>
+                    شما به عنوان <strong>مدیر سیستم</strong> وارد شده‌اید.
+                </div>
+
+                <div class="admin-tabs" id="adminTabs">
+                    <button class="atab active" data-atab="questions">
+                        <i class='bx bx-list-ul'></i> سوالات
+                    </button>
+                    <button class="atab" data-atab="categories">
+                        <i class='bx bx-category-alt'></i> دسته‌بندی‌ها
+                    </button>
+                    <button class="atab" data-atab="siteStats">
+                        <i class='bx bx-bar-chart-alt-2'></i> آمار سراسری
+                    </button>
+                    <button class="atab" data-atab="users">
+                        <i class='bx bx-group'></i> کاربران
+                    </button>
+                </div>
+
+                <!-- ===== تب: سوالات ===== -->
+                <div id="adminTab-questions" class="admin-tab-panel active">
+                    <div class="admin-toolbar card">
+                        <div class="input-icon">
+                            <i class='bx bx-search'></i>
+                            <input type="text" id="adminSearch" placeholder="جستجو در سوالات...">
+                        </div>
+                        <select id="adminFilterCat"></select>
+                        <select id="adminFilterDiff">
+                            <option value="">همه سختی‌ها</option>
+                            <option value="easy">🟢 آسان</option>
+                            <option value="medium">🟠 متوسط</option>
+                            <option value="hard">🔴 سخت</option>
+                        </select>
+                        <button id="btnExport" class="btn ghost small"><i class='bx bx-download'></i> خروجی</button>
+                        <button id="btnImport" class="btn ghost small"><i class='bx bx-upload'></i> ورود</button>
+                        <input type="file" id="importFile" accept="application/json" hidden>
+                    </div>
+
+                    <form id="questionForm" class="card form-card" autocomplete="off">
+                        <h3 id="formTitle"><i class='bx bx-plus-circle'></i> افزودن سوال جدید</h3>
+                        <input type="hidden" id="editingId" value="">
+
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>دسته‌بندی</label>
+                                <select id="fCat" required></select>
+                            </div>
+                            <div class="field">
+                                <label>سطح سختی</label>
+                                <select id="fDiff" required>
+                                    <option value="easy">🟢 آسان</option>
+                                    <option value="medium">🟠 متوسط</option>
+                                    <option value="hard">🔴 سخت</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>نوع سوال</label>
+                            <select id="fType">
+                                <option value="single">چهارگزینه‌ای</option>
+                                <option value="boolean">درست / غلط</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label>متن سوال</label>
+                            <input type="text" id="fQuestion" required>
+                        </div>
+
+                        <div class="grid-2" id="optionsWrap">
+                            <div class="field"><label>گزینه ۱</label><input type="text" id="fOpt0"></div>
+                            <div class="field"><label>گزینه ۲</label><input type="text" id="fOpt1"></div>
+                            <div class="field"><label>گزینه ۳</label><input type="text" id="fOpt2"></div>
+                            <div class="field"><label>گزینه ۴</label><input type="text" id="fOpt3"></div>
+                        </div>
+
+                        <div class="field">
+                            <label>پاسخ صحیح</label>
+                            <div class="answer-picker" id="answerPicker"></div>
+                        </div>
+
+                        <div class="nav-row">
+                            <button type="submit" class="btn primary" id="btnSubmitQuestion">
+                                <i class='bx bx-plus'></i> افزودن سوال
+                            </button>
+                            <button type="button" class="btn ghost" id="btnCancelEdit" style="display:none;">لغو
+                                ویرایش</button>
+                        </div>
+                    </form>
+
+                    <div class="card">
+                        <div class="section-head" style="margin-bottom:10px;">
+                            <h3 style="margin:0;">📋 لیست سوالات (<span id="adminCount">۰</span>)</h3>
+                            <button id="btnResetDefaults" class="btn danger small">بازنشانی پیش‌فرض</button>
+                        </div>
+                        <div id="adminList"></div>
+                    </div>
+                </div>
+
+                <!-- ===== ✅ تب جدید: دسته‌بندی‌ها ===== -->
+                <div id="adminTab-categories" class="admin-tab-panel">
+                    <div class="card form-card">
+                        <h3><i class='bx bx-category-alt'></i> افزودن دسته‌بندی جدید</h3>
+
+                        <div class="field">
+                            <label>نوع دسته‌بندی</label>
+                            <div class="radio-cards" id="catTypePicker">
+                                <label class="radio-card active">
+                                    <input type="radio" name="catType" value="main" checked>
+                                    <i class='bx bx-layer'></i>
+                                    <div>
+                                        <strong>دسته‌ی اصلی</strong>
+                                        <small>مستقل با سوالات خودش</small>
+                                    </div>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="catType" value="sub">
+                                    <i class='bx bx-git-branch'></i>
+                                    <div>
+                                        <strong>زیرشاخه</strong>
+                                        <small>زیر یک دسته‌ی موجود</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="field" id="parentSelectWrap" style="display:none;">
+                            <label>دسته‌ی والد</label>
+                            <select id="catParent"></select>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>نام دسته</label>
+                                <input type="text" id="catTitle" placeholder="مثلاً: React" required>
+                            </div>
+                            <div class="field">
+                                <label>شناسه (ID)</label>
+                                <input type="text" id="catId" placeholder="مثلاً: react" required>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>آیکون (Boxicon)</label>
+                                <input type="text" id="catIcon" placeholder="مثلاً: bx-code-alt" value="bx-book">
+                                <small class="field-hint">
+                                    <i class='bx bx-info-circle'></i>
+                                    لیست آیکون‌ها در
+                                    <a href="https://boxicons.com/" target="_blank">boxicons.com</a>
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label>رنگ</label>
+                                <select id="catColor">
+                                    <option value="purple">بنفش 🟣</option>
+                                    <option value="blue">آبی 🔵</option>
+                                    <option value="green">سبز 🟢</option>
+                                    <option value="pink">صورتی 🌸</option>
+                                    <option value="orange">نارنجی 🟠</option>
+                                    <option value="cyan">فیروزه‌ای 💠</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field" id="catImageWrap">
+                            <label>مسیر تصویر</label>
+                            <input type="text" id="catImage" placeholder="مثلاً: assets/img/programmer.png">
+                            <small class="field-hint">
+                                <i class='bx bx-info-circle'></i>
+                                تصاویر رو در <code>assets/img/</code> بذار
+                            </small>
+                        </div>
+
+                        <button type="button" class="btn primary" id="btnAddCategory">
+                            <i class='bx bx-plus'></i> افزودن دسته‌بندی
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-head" style="margin-bottom:14px;">
+                            <h3 style="margin:0;">
+                                <i class='bx bx-list-ul'></i>
+                                لیست دسته‌بندی‌ها (<span id="catCount">۰</span>)
+                            </h3>
+                            <button id="btnResetCategories" class="btn danger small">بازنشانی پیش‌فرض</button>
+                        </div>
+                        <div id="categoryAdminList"></div>
+                    </div>
+                </div>
+
+                <!-- ===== تب: آمار سراسری ===== -->
+                <div id="adminTab-siteStats" class="admin-tab-panel">
+                    <div class="stats-grid">
+                        <div class="card stat-card">
+                            <span class="stat-icon"><i class='bx bx-group'></i></span>
+                            <span class="stat-big" id="ssUsers">۰</span>
+                            <span class="stat-lbl">کاربر</span>
+                        </div>
+                        <div class="card stat-card">
+                            <span class="stat-icon"><i class='bx bx-target-lock'></i></span>
+                            <span class="stat-big" id="ssQuizzes">۰</span>
+                            <span class="stat-lbl">کل آزمون‌ها</span>
+                        </div>
+                        <div class="card stat-card">
+                            <span class="stat-icon"><i class='bx bx-check-circle'></i></span>
+                            <span class="stat-big" id="ssCorrect">۰</span>
+                            <span class="stat-lbl">کل پاسخ درست</span>
+                        </div>
+                        <div class="card stat-card">
+                            <span class="stat-icon"><i class='bx bx-list-ul'></i></span>
+                            <span class="stat-big" id="ssQuestions">۰</span>
+                            <span class="stat-lbl">سوال موجود</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-wrap">
+                        <h3><i class='bx bx-bar-chart'></i> محبوب‌ترین دسته‌ها</h3>
+                        <canvas id="ssChartCats"></canvas>
+                        <div id="ssCatsEmpty" class="chart-empty" style="display:none;">هنوز آماری ثبت نشده.</div>
+                    </div>
+
+                    <div class="chart-wrap">
+                        <h3><i class='bx bx-pie-chart-alt-2'></i> سهم زیرشاخه‌ها از آزمون‌ها</h3>
+                        <div id="ssSubList" class="subcat-stat-list"></div>
+                    </div>
+
+                    <div class="chart-wrap">
+                        <h3><i class='bx bx-pulse'></i> فعالیت روزانه</h3>
+                        <canvas id="ssChartActivity"></canvas>
+                        <div id="ssActivityEmpty" class="chart-empty" style="display:none;">هنوز آماری ثبت نشده.</div>
+                    </div>
+                </div>
+
+                <!-- ===== تب: کاربران ===== -->
+                <div id="adminTab-users" class="admin-tab-panel">
+                    <div class="chart-wrap">
+                        <h3><i class='bx bx-group'></i> لیست کاربران (<span id="usersCount">۰</span>)</h3>
+                        <div id="usersList"></div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo-circle tiny"><i class='bx bx-brain'></i></div>
+                    <span>Quiz<span class="gradient-text">Pro</span></span>
+                </div>
+                <p class="footer-text">
+                    <i class='bx bx-heart' style="color:#ef4444"></i>
+                    ساخته شده برای یادگیری بهتر
+                </p>
+                <div class="footer-links">
+                    <a href="#" onclick="return false;"><i class='bx bxl-github'></i> گیت‌هاب</a>
+                    <a href="#" onclick="return false;"><i class='bx bxl-instagram'></i> اینستاگرام</a>
+                    <a href="#" onclick="return false;"><i class='bx bxl-telegram'></i> تلگرام</a>
+                </div>
+                <p class="footer-copy">© ۱۴۰۳ Quiz Pro — تمامی حقوق محفوظ است</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ============ مودال راهنما ============ -->
+    <div class="modal" id="modalGuide">
+        <div class="modal-box guide-modal">
+            <div class="guide-hero">
+                <div class="guide-emoji">🎯</div>
+                <h3>به Quiz Pro خوش آمدی!</h3>
+                <p>یه راهنمای سریع از همه‌ی امکانات</p>
+            </div>
+
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <div class="guide-ico purple"><i class='bx bx-category-alt'></i></div>
+                    <div>
+                        <div class="guide-title">۱. دسته‌بندی رو انتخاب کن</div>
+                        <div class="guide-desc">از بین دسته‌های موجود یکی رو انتخاب کن</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-ico blue"><i class='bx bx-time-five'></i></div>
+                    <div>
+                        <div class="guide-title">۲. حالت بازی</div>
+                        <div class="guide-desc">زمان‌دار یا تمرینی</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-ico green"><i class='bx bx-signal-4'></i></div>
+                    <div>
+                        <div class="guide-title">۳. سطح سختی</div>
+                        <div class="guide-desc">آسان، متوسط یا سخت</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-ico orange"><i class='bx bxs-flame'></i></div>
+                    <div>
+                        <div class="guide-title">۴. استریک روزانه</div>
+                        <div class="guide-desc">هر روز آزمون بده تا استریکت حفظ بشه</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-ico gold"><i class='bx bx-trophy'></i></div>
+                    <div>
+                        <div class="guide-title">۵. دستاوردها</div>
+                        <div class="guide-desc">با عملکرد خوب، نشان باز کن</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-ico pink"><i class='bx bx-bar-chart-alt-2'></i></div>
+                    <div>
+                        <div class="guide-title">۶. آمار و نمودار</div>
+                        <div class="guide-desc">پیشرفتت رو در تب آمار ببین</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-ico cyan"><i class='bx bx-command'></i></div>
+                    <div>
+                        <div class="guide-title">۷. میانبرهای کیبورد</div>
+                        <div class="guide-desc">۱ تا ۴ برای گزینه، Enter برای بعدی</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn primary lg full" id="btnCloseGuide">
+                بزن بریم! <i class='bx bx-rocket'></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============ مودال پروفایل ============ -->
+    <div class="modal" id="modalProfile">
+        <div class="modal-box">
+            <h3><i class='bx bx-user-circle'></i> پروفایل شما</h3>
+
+            <div class="field">
+                <label>نام نمایشی</label>
+                <div class="input-icon">
+                    <i class='bx bx-user'></i>
+                    <input type="text" id="pNickname" placeholder="نامت رو وارد کن" maxlength="20">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>آواتار</label>
+                <div class="avatar-picker" id="avatarPicker">
+                    <button data-avatar="🧑" class="avatar-opt">🧑</button>
+                    <button data-avatar="👩" class="avatar-opt">👩</button>
+                    <button data-avatar="🧔" class="avatar-opt">🧔</button>
+                    <button data-avatar="👨‍💻" class="avatar-opt">👨‍💻</button>
+                    <button data-avatar="👩‍💻" class="avatar-opt">👩‍💻</button>
+                    <button data-avatar="🦊" class="avatar-opt">🦊</button>
+                    <button data-avatar="🐼" class="avatar-opt">🐼</button>
+                    <button data-avatar="🐯" class="avatar-opt">🐯</button>
+                    <button data-avatar="🦁" class="avatar-opt">🦁</button>
+                    <button data-avatar="🐸" class="avatar-opt">🐸</button>
+                    <button data-avatar="🚀" class="avatar-opt">🚀</button>
+                    <button data-avatar="⭐" class="avatar-opt">⭐</button>
+                </div>
+            </div>
+
+            <div class="profile-info">
+                <div class="p-row">
+                    <span><i class='bx bx-user'></i> نام کاربری:</span>
+                    <strong id="pUsername">—</strong>
+                </div>
+                <div class="p-row">
+                    <span><i class='bx bx-envelope'></i> ایمیل:</span>
+                    <strong id="pEmail">—</strong>
+                </div>
+                <div class="p-row">
+                    <span><i class='bx bx-shield'></i> نقش:</span>
+                    <strong id="pRole">کاربر عادی</strong>
+                </div>
+                <div class="p-row" id="pAdminRow" style="display:none;">
+                    <span><i class='bx bx-crown'></i> دسترسی ویژه:</span>
+                    <strong id="pAdminInfo">—</strong>
+                </div>
+            </div>
+
+            <div class="nav-row center">
+                <button class="btn primary" id="btnSaveProfile">ذخیره</button>
+                <button class="btn danger" id="btnLogout"><i class='bx bx-log-out'></i> خروج</button>
+                <button class="btn ghost" id="btnCloseProfile">بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ مودال میانبرها ============ -->
+    <div class="modal" id="modalShortcuts">
+        <div class="modal-box">
+            <h3><i class='bx bx-command'></i> میانبرهای کیبورد</h3>
+            <div class="shortcuts">
+                <div class="sc-row"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><span>انتخاب گزینه</span></div>
+                <div class="sc-row"><kbd>Enter</kbd><span>سوال بعدی</span></div>
+                <div class="sc-row"><kbd>←</kbd><span>سوال قبلی</span></div>
+                <div class="sc-row"><kbd>→</kbd><span>سوال بعدی</span></div>
+                <div class="sc-row"><kbd>S</kbd><span>رد کردن سوال</span></div>
+                <div class="sc-row"><kbd>D</kbd><span>تغییر تم</span></div>
+                <div class="sc-row"><kbd>Esc</kbd><span>بستن پنجره‌ها</span></div>
+            </div>
+            <div class="nav-row center">
+                <button class="btn primary" id="btnCloseShortcuts">متوجه شدم</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ مودال اشتراک ============ -->
+    <div class="modal" id="modalShare">
+        <div class="modal-box">
+            <h3><i class='bx bx-share-alt'></i> اشتراک‌گذاری نتیجه</h3>
+            <canvas id="shareCanvas" width="500" height="600" class="share-canvas"></canvas>
+            <div class="nav-row center" style="margin-top:16px;">
+                <button class="btn primary" id="btnDownloadShare"><i class='bx bx-download'></i> دانلود</button>
+                <button class="btn ghost" id="btnCloseShare">بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>
