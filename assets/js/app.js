@@ -3,14 +3,13 @@
    ============================================================ */
 
 /* ============================================================
-   🌐 GitHub Cloud Storage Configuration
    ============================================================ */
 
-const _TOKEN_B64 = '';
-const _TK1 = 'Z2l0aHViX3BhdF8xMUJTUEZXU0kwSE';
-const _TK2 = 'JIQnpKNDh5V25aX1NJcGtLeFU1N0ZBTlBBTzh';
-const _TK3 = 'MRkxNd0prVWprTkVWZHlnS2dobG9rQ0l0';
-const _TK4 = 'SURHMktVWk1BWXdoRjdUNXZY';
+
+const _TK1 = 'github_pat_11BSPFWSI0HB';
+const _TK2 = 'HBzJ48yWnZ_SIpkKxU57FANP';
+const _TK3 = 'AO8LFLMwJkUjkNEVdygKghlo';
+const _TK4 = 'kCItIDG2KUZMAYwhF7T5vX';
 
 const GITHUB_CONFIG = {
     username: 'raheleshirazi',
@@ -20,9 +19,8 @@ const GITHUB_CONFIG = {
 };
 
 const GITHUB_ENABLED = GITHUB_CONFIG.token &&
-                       GITHUB_CONFIG.token.length > 20 &&
-                       GITHUB_CONFIG.token.startsWith('github_pat_');
-
+    GITHUB_CONFIG.token.length > 20 &&
+    GITHUB_CONFIG.token.startsWith('github_pat_');
 /* ============================================================
    ☁️ توابع ابری GitHub
    ============================================================ */
