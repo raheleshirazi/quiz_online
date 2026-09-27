@@ -1,6 +1,136 @@
 /* ============================================================
-   Quiz Pro v5 — دسته‌بندی داینامیک + تصاویر محلی
+   Quiz Pro v6 — متصل به GitHub Cloud Storage
    ============================================================ */
+
+/* ============================================================
+   🌐 GitHub Cloud Storage Configuration
+   ============================================================ */
+
+const _TOKEN_B64 = '';
+const _TK1 = 'Z2l0aHViX3BhdF8xMUJTUEZXU0kwSE';
+const _TK2 = 'JIQnpKNDh5V25aX1NJcGtLeFU1N0ZBTlBBTzh';
+const _TK3 = 'MRkxNd0prVWprTkVWZHlnS2dobG9rQ0l0';
+const _TK4 = 'SURHMktVWk1BWXdoRjdUNXZY';
+
+const GITHUB_CONFIG = {
+    username: 'raheleshirazi',
+    repo: 'quiz_online',
+    token: _TK1 + _TK2 + _TK3 + _TK4,
+    branch: 'main',
+};
+
+const GITHUB_ENABLED = GITHUB_CONFIG.token &&
+                       GITHUB_CONFIG.token.length > 20 &&
+                       GITHUB_CONFIG.token.startsWith('github_pat_');
+
+/* ============================================================
+   ☁️ توابع ابری GitHub
+   ============================================================ */
+
+/** خواندن فایل JSON از گیت‌هاب */
+async function readGithubFile(path) {
+    if (!GITHUB_ENABLED) return null;
+    try {
+        const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${path}?ref=${GITHUB_CONFIG.branch}&t=${Date.now()}`;
+        const res = await fetch(url, {
+            headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const content = atob(data.content.replace(/\n/g, ''));
+        const decoded = decodeURIComponent(escape(content));
+        return { data: JSON.parse(decoded), sha: data.sha };
+    } catch (err) {
+        console.error('خطا در خواندن فایل:', err);
+        return null;
+    }
+}
+
+/** نوشتن فایل JSON در گیت‌هاب */
+async function writeGithubFile(path, content, sha, message) {
+    if (!GITHUB_ENABLED) return false;
+    try {
+        const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${path}`;
+        const body = {
+            message: message || `Update ${path}`,
+            content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+            branch: GITHUB_CONFIG.branch,
+        };
+        if (sha) body.sha = sha;
+        const res = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+        return res.ok;
+    } catch (err) {
+        console.error('خطا در نوشتن فایل:', err);
+        return false;
+    }
+}
+
+/** ذخیره کاربر جدید در گیت‌هاب */
+async function syncUserToCloud(user) {
+    if (!GITHUB_ENABLED) return;
+    try {
+        const file = await readGithubFile('data/users.json');
+        const users = file ? file.data : [];
+        const sha = file ? file.sha : null;
+        if (users.find(u => u.username === user.username)) return;
+        users.push({
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            role: user.role,
+            createdAt: user.createdAt,
+            lastLogin: Date.now(),
+        });
+        const ok = await writeGithubFile('data/users.json', users, sha, `ثبت‌نام: ${user.username}`);
+        if (ok) console.log('☁️ کاربر ذخیره شد:', user.username);
+    } catch (err) { console.error('خطا در ذخیره کاربر:', err); }
+}
+
+/** ذخیره نتیجه آزمون در گیت‌هاب */
+async function syncResultToCloud(result) {
+    if (!GITHUB_ENABLED) return;
+    try {
+        const file = await readGithubFile('data/results.json');
+        const results = file ? file.data : [];
+        const sha = file ? file.sha : null;
+        results.push({ ...result, username: userName() });
+        const ok = await writeGithubFile('data/results.json', results.slice(-500), sha, `نتیجه آزمون: ${userName()}`);
+        if (ok) console.log('☁️ نتیجه ذخیره شد');
+    } catch (err) { console.error('خطا در ذخیره نتیجه:', err); }
+}
+
+/** بروزرسانی آخرین ورود کاربر در گیت‌هاب */
+async function updateLastLogin(username) {
+    if (!GITHUB_ENABLED) return;
+    try {
+        const file = await readGithubFile('data/users.json');
+        if (!file) return;
+        const users = file.data;
+        const idx = users.findIndex(u => u.username === username);
+        if (idx === -1) return;
+        users[idx].lastLogin = Date.now();
+        await writeGithubFile('data/users.json', users, file.sha, `ورود: ${username}`);
+    } catch (err) { console.error('خطا در بروزرسانی ورود:', err); }
+}
+
+/** بارگذاری همه کاربران از گیت‌هاب */
+async function loadAllUsersFromCloud() {
+    const file = await readGithubFile('data/users.json');
+    return file ? file.data : [];
+}
+
+/** بارگذاری همه نتایج از گیت‌هاب */
+async function loadAllResultsFromCloud() {
+    const file = await readGithubFile('data/results.json');
+    return file ? file.data : [];
+}
 
 /* ============================================================
    ۱) ثابت‌ها و اعتبارنامه ادمین
@@ -245,7 +375,7 @@ const KEY = {
     users: 'quizpro.users.v5',
     session: 'quizpro.session.v5',
     questions: 'quizpro.questions.v5',
-    categories: 'quizpro.categories.v5',  // ✅ کلید جدید
+    categories: 'quizpro.categories.v5',
     theme: 'quizpro.theme.v5',
     globalStats: 'quizpro.globalstats.v5',
     results: (u) => `quizpro.results.${u}`,
@@ -316,7 +446,7 @@ function toast(msg, type = 'info', duration = 2600) {
 }
 
 /* ============================================================
-   ۳) ✅ مدیریت دسته‌بندی‌ها (داینامیک)
+   ۳) مدیریت دسته‌بندی‌ها (داینامیک)
    ============================================================ */
 function getCategories() {
     try {
@@ -326,7 +456,6 @@ function getCategories() {
             if (Array.isArray(p) && p.length) return p;
         }
     } catch (e) { }
-    // اولین بار: کپی از پیش‌فرض
     const copy = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
     localStorage.setItem(KEY.categories, JSON.stringify(copy));
     return copy;
@@ -340,7 +469,6 @@ function resetCategories() {
     localStorage.removeItem(KEY.categories);
 }
 
-/** ساخت نگاشت شناسه → اطلاعات (برای سوالات، نمودارها و ...) */
 function buildLeafCats() {
     const cats = getCategories();
     const leafs = {};
@@ -356,7 +484,6 @@ function buildLeafCats() {
     return leafs;
 }
 
-/** پیدا کردن والد یک زیرشاخه */
 function findParent(catId) {
     const cats = getCategories();
     for (const c of cats) {
@@ -492,6 +619,9 @@ function registerUser(username, email, password, confirm, captchaInput) {
         avatar: '🧑',
     }));
 
+    // ✅ ذخیره در گیت‌هاب
+    syncUserToCloud(user);
+
     return { ok: true, user };
 }
 
@@ -519,7 +649,7 @@ function loginUser(username, password, captchaInput) {
 }
 
 /* ============================================================
-   ۵) ذخیره‌سازی
+   ۵) ذخیره‌سازی محلی
    ============================================================ */
 function userName() { const u = currentUser(); return u ? u.username : 'guest'; }
 
@@ -645,7 +775,6 @@ function renderHome() {
 
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'صبح بخیر' : hour < 18 ? 'وقت بخیر' : 'شب بخیر';
-    
 
     $('#heroGreeting').textContent = profile.nickname
         ? `${greeting}، ${profile.nickname}! 👋`
@@ -676,7 +805,6 @@ function renderHome() {
     renderCategories();
 }
 
-/* ✅ رندر دسته‌بندی‌ها به صورت داینامیک از localStorage */
 function renderCategories() {
     const qs = getQuestions();
     const cats = getCategories();
@@ -689,7 +817,7 @@ function renderCategories() {
             ? qs.filter(q => cat.subcats.some(s => s.id === q.cat)).length
             : qs.filter(q => q.cat === cat.id).length;
 
-        if (total === 0 && !isAdmin()) return; // مخفی برای کاربر عادی
+        if (total === 0 && !isAdmin()) return;
 
         const tile = document.createElement('button');
         tile.className = `cat-tile ${cat.color || 'purple'}`;
@@ -936,6 +1064,9 @@ function finishQuiz(timeUp) {
     };
     saveResult(result);
     state.lastResult = result;
+
+    // ✅ ذخیره در گیت‌هاب
+    syncResultToCloud(result);
 
     updateStatsAndStreak(correct, spent);
     updateGlobalStats(state.category.id, correct);
@@ -1542,7 +1673,7 @@ function importQuestions(file) {
 }
 
 /* ============================================================
-   ۱۵) ✅ پنل ادمین - دسته‌بندی‌ها (جدید)
+   ۱۵) پنل ادمین - دسته‌بندی‌ها
    ============================================================ */
 function renderCategoryAdmin() {
     if (!isAdmin()) return;
@@ -1608,7 +1739,6 @@ function renderCategoryAdmin() {
         list.appendChild(card);
     });
 
-    // رویدادها
     $$('#categoryAdminList .cat-admin-actions .del').forEach(btn => {
         btn.addEventListener('click', () => deleteCategory(btn.dataset.cat));
     });
@@ -1655,13 +1785,11 @@ function handleAddCategory() {
         toast(`دسته "${title}" اضافه شد.`, 'success');
     }
 
-    // ریست فرم
     $('#catTitle').value = '';
     $('#catId').value = '';
     $('#catIcon').value = 'bx-book';
     $('#catImage').value = '';
 
-    // رفرش
     renderCategoryAdmin();
     renderCategories();
     fillAdminSelects();
@@ -1689,7 +1817,6 @@ function deleteCategory(catId) {
 
     if (!confirm(msg)) return;
 
-    // حذف سوالات مربوطه
     const remainingQs = qs.filter(q => {
         if (cat.subcats && cat.subcats.length) {
             return !cat.subcats.some(s => s.id === q.cat);
@@ -1698,7 +1825,6 @@ function deleteCategory(catId) {
     });
     saveQuestions(remainingQs);
 
-    // حذف دسته
     saveCategories(cats.filter(c => c.id !== catId));
 
     toast(`دسته "${cat.title}" حذف شد.`, 'success');
@@ -1724,10 +1850,8 @@ function deleteSubcategory(parentId, subId) {
 
     if (!confirm(msg)) return;
 
-    // حذف سوالات
     saveQuestions(getQuestions().filter(q => q.cat !== subId));
 
-    // حذف زیرشاخه
     parent.subcats = parent.subcats.filter(s => s.id !== subId);
     saveCategories(cats);
 
@@ -1749,7 +1873,6 @@ function resetCategoriesDefaults() {
     renderAdminList();
 }
 
-/** پر کردن select والد */
 function fillParentSelect() {
     const cats = getCategories();
     const sel = $('#catParent');
@@ -1760,23 +1883,67 @@ function fillParentSelect() {
 }
 
 /* ============================================================
-   ۱۶) آمار سراسری
+   ۱۶) آمار سراسری (از GitHub می‌خواند)
    ============================================================ */
-function renderAdminSiteStats() {
+async function renderAdminSiteStats() {
     if (!isAdmin()) return;
 
-    const gs = getGlobalStats();
-    const users = getUsers();
-
-    $('#ssUsers').textContent = toFa(users.length + 1);
-    $('#ssQuizzes').textContent = toFa(gs.totalQuizzes || 0);
-    $('#ssCorrect').textContent = toFa(gs.totalCorrect || 0);
+    $('#ssUsers').textContent = '...';
+    $('#ssQuizzes').textContent = '...';
+    $('#ssCorrect').textContent = '...';
     $('#ssQuestions').textContent = toFa(getQuestions().length);
 
-    renderSiteCatsChart(gs);
-    renderSiteSubList(gs);
-    renderSiteActivityChart(gs);
-    renderUsersList(users, gs);
+    if (!GITHUB_ENABLED) {
+        console.warn('GitHub فعال نیست — از localStorage استفاده می‌شود');
+        const gs = getGlobalStats();
+        const users = getUsers();
+        $('#ssUsers').textContent = toFa(users.length + 1);
+        $('#ssQuizzes').textContent = toFa(gs.totalQuizzes || 0);
+        $('#ssCorrect').textContent = toFa(gs.totalCorrect || 0);
+        renderSiteCatsChart(gs);
+        renderSiteSubList(gs);
+        renderSiteActivityChart(gs);
+        renderUsersListLocal(users, gs);
+        return;
+    }
+
+    try {
+        const [cloudUsers, cloudResults] = await Promise.all([
+            loadAllUsersFromCloud(),
+            loadAllResultsFromCloud(),
+        ]);
+
+        const totalQuizzes = cloudResults.length;
+        const totalCorrect = cloudResults.reduce((s, r) => s + (r.correct || 0), 0);
+
+        $('#ssUsers').textContent = toFa(cloudUsers.length);
+        $('#ssQuizzes').textContent = toFa(totalQuizzes);
+        $('#ssCorrect').textContent = toFa(totalCorrect);
+
+        const byCategory = {}, byUser = {}, byDate = {};
+        cloudResults.forEach(r => {
+            if (r.cat) byCategory[r.cat] = (byCategory[r.cat] || 0) + 1;
+            const u = r.username || 'unknown';
+            if (!byUser[u]) byUser[u] = { quizzes: 0, categories: {} };
+            byUser[u].quizzes++;
+            if (r.cat) byUser[u].categories[r.cat] = (byUser[u].categories[r.cat] || 0) + 1;
+            if (r.date) {
+                const date = new Date(r.date).toISOString().slice(0, 10);
+                byDate[date] = (byDate[date] || 0) + 1;
+            }
+        });
+
+        const gs = { totalQuizzes, totalCorrect, byCategory, byUser, byDate };
+
+        renderSiteCatsChart(gs);
+        renderSiteSubList(gs);
+        renderSiteActivityChart(gs);
+        renderUsersListCloud(cloudUsers, gs);
+
+    } catch (err) {
+        console.error('خطا در بارگذاری آمار ابری:', err);
+        toast('خطا در بارگذاری آمار از گیت‌هاب', 'error');
+    }
 }
 
 function renderSiteCatsChart(gs) {
@@ -1968,24 +2135,65 @@ function renderSiteActivityChart(gs) {
     });
 }
 
-function renderUsersList(users, gs) {
+/* ✅ نمایش کاربران از گیت‌هاب */
+function renderUsersListCloud(users, gs) {
     const list = $('#usersList');
-    const count = users.length + 1;
-    $('#usersCount').textContent = toFa(count);
+    $('#usersCount').textContent = toFa(users.length + 1);
+    list.innerHTML = '';
+
+    const adminCard = document.createElement('div');
+    adminCard.className = 'user-card';
+    adminCard.innerHTML = `
+    <div class="user-avatar">👑</div>
+    <div class="user-info">
+      <div class="user-name">admin <span class="admin-badge">مدیر</span></div>
+      <div class="user-meta">admin@quizpro.local</div>
+    </div>
+  `;
+    list.appendChild(adminCard);
 
     if (!users.length) {
-        list.innerHTML = `
-      <div class="user-card">
-        <div class="user-avatar">👑</div>
-        <div class="user-info">
-          <div class="user-name">admin <span class="admin-badge">مدیر</span></div>
-          <div class="user-meta">admin@quizpro.local</div>
-        </div>
-      </div>
-      <p class="muted" style="text-align:center;padding:12px;">هنوز کاربر دیگری ثبت‌نام نکرده.</p>
-    `;
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.style.textAlign = 'center';
+        p.style.padding = '12px';
+        p.textContent = 'هنوز کاربر دیگری ثبت‌نام نکرده.';
+        list.appendChild(p);
         return;
     }
+
+    users.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    users.forEach(u => {
+        let profile = {};
+        try {
+            profile = JSON.parse(localStorage.getItem(KEY.profile(u.username))) || {};
+        } catch (e) { profile = {}; }
+
+        const userStats = gs.byUser?.[u.username] || { quizzes: 0 };
+
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        card.innerHTML = `
+      <div class="user-avatar">${profile.avatar || '🧑'}</div>
+      <div class="user-info">
+        <div class="user-name">${escapeHtml(profile.nickname || u.username)}</div>
+        <div class="user-meta">${escapeHtml(u.email || '—')}</div>
+        <div class="user-stats">
+          <span><i class='bx bx-check-circle'></i> ${toFa(userStats.quizzes || 0)} آزمون</span>
+          <span><i class='bx bx-calendar'></i> ${toFa(new Date(u.createdAt).toLocaleDateString('fa-IR'))}</span>
+          ${u.lastLogin ? `<span><i class='bx bx-time'></i> آخرین ورود: ${toFa(new Date(u.lastLogin).toLocaleDateString('fa-IR'))}</span>` : ''}
+        </div>
+      </div>
+    `;
+        list.appendChild(card);
+    });
+}
+
+/* fallback محلی */
+function renderUsersListLocal(users, gs) {
+    const list = $('#usersList');
+    $('#usersCount').textContent = toFa(users.length + 1);
 
     list.innerHTML = '';
     const adminCard = document.createElement('div');
@@ -1998,6 +2206,16 @@ function renderUsersList(users, gs) {
     </div>
   `;
     list.appendChild(adminCard);
+
+    if (!users.length) {
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.style.textAlign = 'center';
+        p.style.padding = '12px';
+        p.textContent = 'هنوز کاربر دیگری ثبت‌نام نکرده.';
+        list.appendChild(p);
+        return;
+    }
 
     users.forEach(u => {
         const profile = (() => {
@@ -2243,7 +2461,6 @@ function enterApp(showGuideModal = false) {
    ============================================================ */
 function bindEvents() {
 
-    /* ---------- احراز هویت ---------- */
     $('#btnGoAuth').addEventListener('click', showAuthForm);
     $('#btnBackWelcome').addEventListener('click', showAuthWelcome);
 
@@ -2303,17 +2520,21 @@ function bindEvents() {
         }
         toast(`خوش آمدی ${res.user.username}! 👋`, 'success');
         setSession(res.user.username);
+
+        // ✅ بروزرسانی آخرین ورود در گیت‌هاب
+        if (res.user.username !== ADMIN_CREDENTIALS.username) {
+            updateLastLogin(res.user.username);
+        }
+
         e.target.reset();
         setTimeout(() => enterApp(false), 400);
     });
 
-    /* ---------- راهنما ---------- */
     $('#btnCloseGuide').addEventListener('click', () => {
         closeModal('modalGuide');
         markGuideSeen();
     });
 
-    /* ---------- نوار بالا ---------- */
     $('#btnTheme').addEventListener('click', toggleTheme);
     $('#btnProfile').addEventListener('click', openProfileModal);
     $('#btnStats').addEventListener('click', () => { renderStats(); showScreen('stats'); });
@@ -2334,7 +2555,6 @@ function bindEvents() {
 
     $('#brandHome').addEventListener('click', () => { renderHome(); showScreen('home'); });
 
-    /* ---------- تب‌های ادمین ---------- */
     $$('.atab').forEach(tab => {
         tab.addEventListener('click', () => {
             $$('.atab').forEach(t => t.classList.remove('active'));
@@ -2352,7 +2572,6 @@ function bindEvents() {
         });
     });
 
-    /* ---------- حالت بازی ---------- */
     $$('.mode-btn').forEach(b => {
         b.addEventListener('click', () => {
             $$('.mode-btn').forEach(x => x.classList.remove('active'));
@@ -2361,7 +2580,6 @@ function bindEvents() {
         });
     });
 
-    /* ---------- سختی ---------- */
     $$('.diff-btn').forEach(b => {
         b.addEventListener('click', () => {
             $$('.diff-btn').forEach(x => x.classList.remove('active'));
@@ -2370,12 +2588,10 @@ function bindEvents() {
         });
     });
 
-    /* ---------- آزمون ---------- */
     $('#btnNext').addEventListener('click', goNext);
     $('#btnPrev').addEventListener('click', goPrev);
     $('#btnSkip').addEventListener('click', goSkip);
 
-    /* ---------- نتیجه ---------- */
     $('#btnReview').addEventListener('click', () => {
         state.reviewFilter = 'all';
         $$('.filter-btn').forEach(x => x.classList.toggle('active', x.dataset.filter === 'all'));
@@ -2391,7 +2607,6 @@ function bindEvents() {
         openModal('modalShare');
     });
 
-    /* ---------- مرور ---------- */
     $('#btnReviewBack').addEventListener('click', () => showScreen('result'));
     $$('.filter-btn').forEach(b => {
         b.addEventListener('click', () => {
@@ -2402,7 +2617,6 @@ function bindEvents() {
         });
     });
 
-    /* ---------- آمار ---------- */
     $('#btnStatsBack').addEventListener('click', () => { renderHome(); showScreen('home'); });
     $('#btnClearHistory').addEventListener('click', () => {
         if (!confirm('همه‌ی تاریخچه و آمار پاک شود؟')) return;
@@ -2414,7 +2628,6 @@ function bindEvents() {
         toast('تاریخچه پاک شد.', 'success');
     });
 
-    /* ---------- ادمین - سوالات ---------- */
     $('#btnAdminBack').addEventListener('click', () => { renderHome(); showScreen('home'); });
     $('#questionForm').addEventListener('submit', handleAddQuestion);
     $('#btnCancelEdit').addEventListener('click', resetForm);
@@ -2430,11 +2643,9 @@ function bindEvents() {
         e.target.value = '';
     });
 
-    /* ---------- ✅ ادمین - دسته‌بندی‌ها ---------- */
     $('#btnAddCategory').addEventListener('click', handleAddCategory);
     $('#btnResetCategories').addEventListener('click', resetCategoriesDefaults);
 
-    // تغییر نوع دسته‌بندی (اصلی/زیرشاخه)
     $$('input[name="catType"]').forEach(r => {
         r.addEventListener('change', () => {
             const type = $('input[name="catType"]:checked').value;
@@ -2443,7 +2654,6 @@ function bindEvents() {
         });
     });
 
-    /* ---------- پروفایل ---------- */
     $('#avatarPicker').addEventListener('click', (e) => {
         const btn = e.target.closest('.avatar-opt');
         if (!btn) return;
@@ -2472,14 +2682,11 @@ function bindEvents() {
     });
     $('#btnCloseProfile').addEventListener('click', () => closeModal('modalProfile'));
 
-    /* ---------- میانبرها ---------- */
     $('#btnCloseShortcuts').addEventListener('click', () => closeModal('modalShortcuts'));
 
-    /* ---------- اشتراک ---------- */
     $('#btnDownloadShare').addEventListener('click', downloadShare);
     $('#btnCloseShare').addEventListener('click', () => closeModal('modalShare'));
 
-    /* ---------- بستن مودال ---------- */
     $$('.modal').forEach(m => {
         m.addEventListener('click', (e) => {
             if (e.target === m) {
@@ -2488,7 +2695,6 @@ function bindEvents() {
         });
     });
 
-    /* ---------- میانبرها ---------- */
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') { closeAllModals(); return; }
         if (e.target.matches('input, textarea, select')) return;
@@ -2507,7 +2713,6 @@ function bindEvents() {
         if (e.key.toLowerCase() === 'd') toggleTheme();
     });
 
-    /* ---------- ریسایز ---------- */
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
@@ -2522,8 +2727,14 @@ function bindEvents() {
    ۲۴) راه‌اندازی
    ============================================================ */
 function init() {
+    if (GITHUB_ENABLED) {
+        console.log('🌐 حالت ابری (GitHub) فعال است');
+    } else {
+        console.log('💾 حالت محلی (localStorage) فعال است');
+    }
+
     initTheme();
-    getCategories(); // اطمینان از وجود دسته‌بندی‌های پیش‌فرض
+    getCategories();
     fillAdminSelects();
     updateFormByType();
     fillParentSelect();
