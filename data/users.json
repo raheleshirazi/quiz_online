@@ -6,5 +6,13 @@
     "role": "user",
     "createdAt": 1790525823614,
     "lastLogin": 1790525824700
+  },
+  {
+    "username": "fereydoon",
+    "email": "frereydoon@gmail.com",
+    "password": "1450575459",
+    "role": "user",
+    "createdAt": 1790527008859,
+    "lastLogin": 1790527011513
   }
 ]
